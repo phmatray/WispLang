@@ -10,12 +10,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wisp", "wisp", "{AC6FB20D-6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstPrinter", "AstPrinter\AstPrinter.csproj", "{6F89C03D-FA75-4DF5-BCA7-9D8E958E7353}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{DA8007AC-B406-4A72-A479-7B6607D8E02B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA8007AC-B406-4A72-A479-7B6607D8E02B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA8007AC-B406-4A72-A479-7B6607D8E02B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5EC12AF-6C15-4329-AB86-7A460202F391}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5EC12AF-6C15-4329-AB86-7A460202F391}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5EC12AF-6C15-4329-AB86-7A460202F391}.Release|Any CPU.ActiveCfg = Release|Any CPU
