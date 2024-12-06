@@ -47,15 +47,28 @@ internal class Program
         }
     }
 
+    // static void Run(string source)
+    // {
+    //     Scanner scanner = new(source);
+    //     List<Token> tokens = scanner.ScanTokens();
+    //
+    //     foreach (Token token in tokens)
+    //     {
+    //         Console.WriteLine(token);
+    //     }
+    // }
+    
     static void Run(string source)
     {
         Scanner scanner = new(source);
         List<Token> tokens = scanner.ScanTokens();
+        Parser parser = new(tokens);
+        Expr? expression = parser.Parse();
+        
+        // Stop if there was a syntax error.
+        if (hadError) return;
     
-        foreach (Token token in tokens)
-        {
-            Console.WriteLine(token);
-        }
+        Console.WriteLine(new AstPrinter().Print(expression!));
     }
 
     public static void Error(int line, string message)
@@ -67,5 +80,17 @@ internal class Program
     {
         Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
         hadError = true;
+    }
+    
+    public static void Error(Token token, string message)
+    {
+        if (token.Type == TokenType.EOF)
+        {
+            Report(token.Line, " at end", message);
+        }
+        else
+        {
+            Report(token.Line, $" at '{token.Lexeme}'", message);
+        }
     }
 }
