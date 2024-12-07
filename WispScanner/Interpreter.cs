@@ -5,7 +5,7 @@ namespace WispScanner;
 public class Interpreter
     : Expr.IVisitor<object?>, Stmt.IVisitorVoid
 {
-    private WispEnvironment environment = new();
+    private WispEnvironment _environment = new();
     
     public void Interpret(List<Stmt> statements)
     {
@@ -25,7 +25,7 @@ public class Interpreter
     public object? VisitAssignExpr(Expr.Assign expr)
     {
         object? value = Evaluate(expr.Value);
-        environment.Assign(expr.Name, value);
+        _environment.Assign(expr.Name, value);
         return value;
     }
 
@@ -84,6 +84,22 @@ public class Interpreter
         return expr.Value;
     }
 
+    public object? VisitLogicalExpr(Expr.Logical expr)
+    {
+        object? left = Evaluate(expr.Left);
+        
+        if (expr.Op.Type == OR)
+        {
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {
+            if (!IsTruthy(left)) return left;
+        }
+        
+        return Evaluate(expr.Right);
+    }
+
     public object? VisitUnaryExpr(Expr.Unary expr)
     {
         Object? right = Evaluate(expr.Right);
@@ -103,17 +119,29 @@ public class Interpreter
 
     public object? VisitVariableExpr(Expr.Variable expr)
     {
-        return environment.Get(expr.Name);
+        return _environment.Get(expr.Name);
     }
 
     public void VisitBlockStmt(Stmt.Block stmt)
     {
-        ExecuteBlock(stmt.Statements, new WispEnvironment(environment));
+        ExecuteBlock(stmt.Statements, new WispEnvironment(_environment));
     }
 
     public void VisitExprStmtStmt(Stmt.ExprStmt stmt)
     {
         Evaluate(stmt.Expression);
+    }
+
+    public void VisitIfStmt(Stmt.If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Execute(stmt.ThenBranch);
+        }
+        else if (stmt.ElseBranch is not null)
+        {
+            Execute(stmt.ElseBranch);
+        }
     }
 
     public void VisitPrintStmt(Stmt.Print stmt)
@@ -130,7 +158,7 @@ public class Interpreter
             value = Evaluate(stmt.Initializer);
         }
         
-        environment.Define(stmt.Name.Lexeme, value);
+        _environment.Define(stmt.Name.Lexeme, value);
     }
 
     private void CheckNumberOperand(Token op, object? operand)
@@ -147,14 +175,14 @@ public class Interpreter
 
     private bool IsTruthy(object? obj)
     {
-        if (obj is null) return false;
+        if (obj == null) return false;
         if (obj is bool b) return b;
         return true;
     }
     
     private bool IsEqual(object? a, object? b)
     {
-        if (a is null && b is null) return true;
+        if (a == null && b == null) return true;
         if (a is null) return false;
         
         return a.Equals(b);
@@ -162,7 +190,7 @@ public class Interpreter
     
     private string Stringify(object? obj)
     {
-        if (obj is null) return "nil";
+        if (obj == null) return "nil";
         
         if (obj is double d)
         {
@@ -189,10 +217,10 @@ public class Interpreter
     
     private void ExecuteBlock(List<Stmt> statements, WispEnvironment environment)
     {
-        WispEnvironment previous = this.environment;
+        WispEnvironment previous = this._environment;
         try
         {
-            this.environment = environment;
+            _environment = environment;
             
             foreach (Stmt statement in statements)
             {
@@ -201,7 +229,7 @@ public class Interpreter
         }
         finally
         {
-            this.environment = previous;
+            _environment = previous;
         }
     }
 }

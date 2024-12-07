@@ -8,6 +8,7 @@ public abstract class Stmt
     {
         void VisitBlockStmt(Block stmt);
         void VisitExprStmtStmt(ExprStmt stmt);
+        void VisitIfStmt(If stmt);
         void VisitPrintStmt(Print stmt);
         void VisitVarStmt(Var stmt);
     }
@@ -39,6 +40,25 @@ public abstract class Stmt
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitExprStmtStmt(this);
+        }
+    }
+
+    public class If : Stmt
+    {
+        public If(Expr condition, Stmt thenBranch, Stmt? elseBranch)
+        {
+            Condition = condition;
+            ThenBranch = thenBranch;
+            ElseBranch = elseBranch;
+        }
+
+        public Expr Condition { get; }
+        public Stmt ThenBranch { get; }
+        public Stmt? ElseBranch { get; }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitIfStmt(this);
         }
     }
 

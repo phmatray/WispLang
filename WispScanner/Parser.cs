@@ -6,12 +6,12 @@ public class Parser
 {
     private class ParseError : Exception;
     
-    private readonly List<Token> tokens;
-    private int current = 0;
+    private readonly List<Token> _tokens;
+    private int _current = 0;
     
     public Parser(List<Token> tokens)
     {
-        this.tokens = tokens;
+        _tokens = tokens;
     }
     
     public List<Stmt> Parse()
@@ -33,10 +33,27 @@ public class Parser
     
     private Stmt Statement()
     {
+        if (Match(IF)) return IfStatement();
         if (Match(PRINT)) return PrintStatement();
         if (Match(LEFT_BRACE)) return new Stmt.Block(Block());
         
         return ExpressionStatement();
+    }
+
+    private Stmt IfStatement()
+    {
+        Consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = Expression();
+        Consume(RIGHT_PAREN, "Expect ')' after if condition.");
+        
+        Stmt thenBranch = Statement();
+        Stmt? elseBranch = null;
+        if (Match(ELSE))
+        {
+            elseBranch = Statement();
+        }
+        
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
     
     private Stmt PrintStatement()
@@ -82,7 +99,7 @@ public class Parser
 
     private Expr Assignment()
     {
-        Expr expr = Equality();
+        Expr expr = Or();
         
         if (Match(EQUAL))
         {
@@ -96,6 +113,34 @@ public class Parser
             }
             
             Error(equals, "Invalid assignment target.");
+        }
+        
+        return expr;
+    }
+
+    private Expr Or()
+    {
+        Expr expr = And();
+
+        while (Match(OR))
+        {
+            Token op = Previous();
+            Expr right = And();
+            expr = new Expr.Logical(expr, op, right);
+        }
+        
+        return expr;
+    }
+
+    private Expr And()
+    {
+        Expr expr = Equality();
+        
+        while (Match(AND))
+        {
+            Token op = Previous();
+            Expr right = Equality();
+            expr = new Expr.Logical(expr, op, right);
         }
         
         return expr;
@@ -270,7 +315,7 @@ public class Parser
     
     private Token Advance()
     {
-        if (!IsAtEnd()) current++;
+        if (!IsAtEnd()) _current++;
         return Previous();
     }
     
@@ -281,11 +326,11 @@ public class Parser
     
     private Token Peek()
     {
-        return tokens[current];
+        return _tokens[_current];
     }
     
     private Token Previous()
     {
-        return tokens[current - 1];
+        return _tokens[_current - 1];
     }
 }

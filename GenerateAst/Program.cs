@@ -18,6 +18,7 @@ internal class Program
             "Binary   : Expr left, Token op, Expr right",
             "Grouping : Expr expression",
             "Literal  : object? value",
+            "Logical  : Expr left, Token op, Expr right",
             "Unary    : Token op, Expr right",
             "Variable : Token name"
         ]);
@@ -25,6 +26,7 @@ internal class Program
         DefineAst(outputDir, "Stmt", [
             "Block    : List<Stmt> statements",
             "ExprStmt : Expr expression",
+            "If       : Expr condition, Stmt thenBranch, Stmt? elseBranch",
             "Print    : Expr expression",
             "Var      : Token name, Expr? initializer"
         ]);
