@@ -6,9 +6,25 @@ public abstract class Stmt
 {
     public interface IVisitorVoid
     {
+        void VisitBlockStmt(Block stmt);
         void VisitExprStmtStmt(ExprStmt stmt);
         void VisitPrintStmt(Print stmt);
         void VisitVarStmt(Var stmt);
+    }
+
+    public class Block : Stmt
+    {
+        public Block(List<Stmt> statements)
+        {
+            Statements = statements;
+        }
+
+        public List<Stmt> Statements { get; }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitBlockStmt(this);
+        }
     }
 
     public class ExprStmt : Stmt

@@ -23,6 +23,7 @@ internal class Program
         ]);
         
         DefineAst(outputDir, "Stmt", [
+            "Block    : List<Stmt> statements",
             "ExprStmt : Expr expression",
             "Print    : Expr expression",
             "Var      : Token name, Expr? initializer"

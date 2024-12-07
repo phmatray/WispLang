@@ -106,6 +106,11 @@ public class Interpreter
         return environment.Get(expr.Name);
     }
 
+    public void VisitBlockStmt(Stmt.Block stmt)
+    {
+        ExecuteBlock(stmt.Statements, new WispEnvironment(environment));
+    }
+
     public void VisitExprStmtStmt(Stmt.ExprStmt stmt)
     {
         Evaluate(stmt.Expression);
@@ -180,5 +185,23 @@ public class Interpreter
     private void Execute(Stmt stmt)
     {
         stmt.Accept(this);
+    }
+    
+    private void ExecuteBlock(List<Stmt> statements, WispEnvironment environment)
+    {
+        WispEnvironment previous = this.environment;
+        try
+        {
+            this.environment = environment;
+            
+            foreach (Stmt statement in statements)
+            {
+                Execute(statement);
+            }
+        }
+        finally
+        {
+            this.environment = previous;
+        }
     }
 }
