@@ -11,6 +11,7 @@ public abstract class Stmt
         void VisitIfStmt(If stmt);
         void VisitPrintStmt(Print stmt);
         void VisitVarStmt(Var stmt);
+        void VisitWhileStmt(While stmt);
     }
 
     public class Block : Stmt
@@ -91,6 +92,23 @@ public abstract class Stmt
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitVarStmt(this);
+        }
+    }
+
+    public class While : Stmt
+    {
+        public While(Expr condition, Stmt body)
+        {
+            Condition = condition;
+            Body = body;
+        }
+
+        public Expr Condition { get; }
+        public Stmt Body { get; }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitWhileStmt(this);
         }
     }
 

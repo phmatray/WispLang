@@ -161,6 +161,14 @@ public class Interpreter
         _environment.Define(stmt.Name.Lexeme, value);
     }
 
+    public void VisitWhileStmt(Stmt.While stmt)
+    {
+        while (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Execute(stmt.Body);
+        }
+    }
+
     private void CheckNumberOperand(Token op, object? operand)
     {
         if (operand is double) return;
