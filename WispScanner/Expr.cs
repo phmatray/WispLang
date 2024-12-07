@@ -4,12 +4,31 @@ namespace WispScanner;
 
 public abstract class Expr
 {
-    public interface IVisitor<T>
+    public interface IVisitor<out T>
     {
+        T VisitAssignExpr(Assign expr);
         T VisitBinaryExpr(Binary expr);
         T VisitGroupingExpr(Grouping expr);
         T VisitLiteralExpr(Literal expr);
         T VisitUnaryExpr(Unary expr);
+        T VisitVariableExpr(Variable expr);
+    }
+
+    public class Assign : Expr
+    {
+        public Assign(Token name, Expr value)
+        {
+            Name = name;
+            Value = value;
+        }
+
+        public Token Name { get; }
+        public Expr Value { get; }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.VisitAssignExpr(this);
+        }
     }
 
     public class Binary : Expr
@@ -75,6 +94,21 @@ public abstract class Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitUnaryExpr(this);
+        }
+    }
+
+    public class Variable : Expr
+    {
+        public Variable(Token name)
+        {
+            Name = name;
+        }
+
+        public Token Name { get; }
+
+        public override T Accept<T>(IVisitor<T> visitor)
+        {
+            return visitor.VisitVariableExpr(this);
         }
     }
 

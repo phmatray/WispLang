@@ -66,13 +66,12 @@ internal class Program
         Scanner scanner = new(source);
         List<Token> tokens = scanner.ScanTokens();
         Parser parser = new(tokens);
-        Expr? expression = parser.Parse();
+        List<Stmt> statements = parser.Parse();
         
         // Stop if there was a syntax error.
         if (hadError) return;
     
-        // Console.WriteLine(new AstPrinter().Print(expression!));
-        interpreter.Interpret(expression!);
+        interpreter.Interpret(statements);
     }
 
     public static void Error(int line, string message)

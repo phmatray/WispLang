@@ -2,19 +2,31 @@ using static WispScanner.TokenType;
 
 namespace WispScanner;
 
-public class Interpreter : Expr.IVisitor<object?>
+public class Interpreter
+    : Expr.IVisitor<object?>, Stmt.IVisitorVoid
 {
-    public void Interpret(Expr expression)
+    private WispEnvironment environment = new();
+    
+    public void Interpret(List<Stmt> statements)
     {
         try
         {
-            object? value = Evaluate(expression);
-            Console.WriteLine(Stringify(value));
+            foreach (Stmt statement in statements)
+            {
+                Execute(statement);
+            }
         }
         catch (RuntimeError error)
         {
             Program.RuntimeError(error);
         }
+    }
+
+    public object? VisitAssignExpr(Expr.Assign expr)
+    {
+        object? value = Evaluate(expr.Value);
+        environment.Assign(expr.Name, value);
+        return value;
     }
 
     public object? VisitBinaryExpr(Expr.Binary expr)
@@ -88,7 +100,34 @@ public class Interpreter : Expr.IVisitor<object?>
         // Unreachable.
         return null;
     }
-    
+
+    public object? VisitVariableExpr(Expr.Variable expr)
+    {
+        return environment.Get(expr.Name);
+    }
+
+    public void VisitExprStmtStmt(Stmt.ExprStmt stmt)
+    {
+        Evaluate(stmt.Expression);
+    }
+
+    public void VisitPrintStmt(Stmt.Print stmt)
+    {
+        object? value = Evaluate(stmt.Expression);
+        Console.WriteLine(Stringify(value));
+    }
+
+    public void VisitVarStmt(Stmt.Var stmt)
+    {
+        object? value = null;
+        if (stmt.Initializer is not null)
+        {
+            value = Evaluate(stmt.Initializer);
+        }
+        
+        environment.Define(stmt.Name.Lexeme, value);
+    }
+
     private void CheckNumberOperand(Token op, object? operand)
     {
         if (operand is double) return;
@@ -103,22 +142,22 @@ public class Interpreter : Expr.IVisitor<object?>
 
     private bool IsTruthy(object? obj)
     {
-        if (obj == null) return false;
+        if (obj is null) return false;
         if (obj is bool b) return b;
         return true;
     }
     
     private bool IsEqual(object? a, object? b)
     {
-        if (a == null && b == null) return true;
-        if (a == null) return false;
+        if (a is null && b is null) return true;
+        if (a is null) return false;
         
         return a.Equals(b);
     }
     
     private string Stringify(object? obj)
     {
-        if (obj == null) return "nil";
+        if (obj is null) return "nil";
         
         if (obj is double d)
         {
@@ -136,5 +175,10 @@ public class Interpreter : Expr.IVisitor<object?>
     private object? Evaluate(Expr exprExpression)
     {
         return exprExpression.Accept(this);
+    }
+    
+    private void Execute(Stmt stmt)
+    {
+        stmt.Accept(this);
     }
 }

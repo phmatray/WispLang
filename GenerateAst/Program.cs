@@ -14,10 +14,18 @@ internal class Program
 
         string outputDir = args[0];
         DefineAst(outputDir, "Expr", [
+            "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token op, Expr right",
             "Grouping : Expr expression",
             "Literal  : object? value",
-            "Unary    : Token op, Expr right"
+            "Unary    : Token op, Expr right",
+            "Variable : Token name"
+        ]);
+        
+        DefineAst(outputDir, "Stmt", [
+            "ExprStmt : Expr expression",
+            "Print    : Expr expression",
+            "Var      : Token name, Expr? initializer"
         ]);
     }
 
@@ -45,8 +53,21 @@ internal class Program
         }
         
         // The base accept() method.
-        writer.WriteLine();
-        writer.WriteLine("    public abstract T Accept<T>(IVisitor<T> visitor);");
+        switch (baseName)
+        {
+            case "Expr":
+            {
+                writer.WriteLine();
+                writer.WriteLine("    public abstract T Accept<T>(IVisitor<T> visitor);");
+                break;
+            }
+            case "Stmt":
+            {
+                writer.WriteLine();
+                writer.WriteLine("    public abstract void Accept(IVisitorVoid visitor);");
+                break;
+            }
+        }
         
         writer.WriteLine("}");
         writer.Close();
@@ -54,17 +75,39 @@ internal class Program
     
     private static void DefineVisitor(StreamWriter writer, string baseName, List<string> types)
     {
-        writer.WriteLine("    public interface IVisitor<T>");
-        writer.WriteLine("    {");
-        
-        foreach (string type in types)
+        switch (baseName)
         {
-            string typeName = type.Split(":")[0].Trim();
-            writer.WriteLine($"        T Visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
-        }
+            case "Expr":
+            {
+                writer.WriteLine("    public interface IVisitor<out T>");
+                writer.WriteLine("    {");
         
-        writer.WriteLine("    }");
-        writer.WriteLine();
+                foreach (string type in types)
+                {
+                    string typeName = type.Split(":")[0].Trim();
+                    writer.WriteLine($"        T Visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
+                }
+        
+                writer.WriteLine("    }");
+                writer.WriteLine();
+                break;
+            }
+            case "Stmt":
+            {
+                writer.WriteLine("    public interface IVisitorVoid");
+                writer.WriteLine("    {");
+        
+                foreach (string type in types)
+                {
+                    string typeName = type.Split(":")[0].Trim();
+                    writer.WriteLine($"        void Visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
+                }
+        
+                writer.WriteLine("    }");
+                writer.WriteLine();
+                break;
+            }
+        }
     }
     
     private static void DefineType(StreamWriter writer, string baseName, string className, string fieldList)
@@ -97,11 +140,27 @@ internal class Program
         }
         
         // Visitor pattern.
-        writer.WriteLine();
-        writer.WriteLine("        public override T Accept<T>(IVisitor<T> visitor)");
-        writer.WriteLine("        {");
-        writer.WriteLine($"            return visitor.Visit{className}{baseName}(this);");
-        writer.WriteLine("        }");
+        switch (baseName)
+        {
+            case "Expr":
+            {
+                writer.WriteLine();
+                writer.WriteLine("        public override T Accept<T>(IVisitor<T> visitor)");
+                writer.WriteLine("        {");
+                writer.WriteLine($"            return visitor.Visit{className}{baseName}(this);");
+                writer.WriteLine("        }");
+                break;
+            }
+            case "Stmt":
+            {
+                writer.WriteLine();
+                writer.WriteLine("        public override void Accept(IVisitorVoid visitor)");
+                writer.WriteLine("        {");
+                writer.WriteLine($"            visitor.Visit{className}{baseName}(this);");
+                writer.WriteLine("        }");
+                break;
+            }
+        }
         
         writer.WriteLine("    }");
         writer.WriteLine();

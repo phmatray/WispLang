@@ -13,4 +13,4 @@ Expr expression = new Expr.Binary(
     )
 );
 
-Console.WriteLine(new AstPrinter().Print(expression));
+// Console.WriteLine(new AstPrinter().Print(expression));
