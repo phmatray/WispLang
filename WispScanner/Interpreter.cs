@@ -5,7 +5,15 @@ namespace WispScanner;
 public class Interpreter
     : Expr.IVisitor<object?>, Stmt.IVisitorVoid
 {
-    private WispEnvironment _environment = new();
+    public WispEnvironment Globals { get; } = new();
+    
+    private WispEnvironment _environment;
+
+    public Interpreter()
+    {
+        _environment = Globals;
+        Globals.Define("clock", new ClockCallable());
+    }
     
     public void Interpret(List<Stmt> statements)
     {
@@ -74,6 +82,31 @@ public class Interpreter
         return null;
     }
 
+    public object? VisitCallExpr(Expr.Call expr)
+    {
+        object? callee = Evaluate(expr.Callee);
+        
+        List<object?> arguments = [];
+        foreach (Expr argument in expr.Arguments)
+        {
+            arguments.Add(Evaluate(argument));
+        }
+        
+        if (callee is not Callable)
+        {
+            throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
+        }
+        
+        Callable function = callee as Callable;
+        if (arguments.Count != function.Arity())
+        {
+            throw new RuntimeError(expr.Paren, $"Expected {function.Arity()} arguments but got {arguments.Count}.");
+        }
+        
+        
+        return function.Call(this, arguments);
+    }
+
     public object? VisitGroupingExpr(Expr.Grouping expr)
     {
         return Evaluate(expr.Expression);
@@ -132,6 +165,12 @@ public class Interpreter
         Evaluate(stmt.Expression);
     }
 
+    public void VisitFunctionStmt(Stmt.Function stmt)
+    {
+        WispFunction function = new(stmt);
+        _environment.Define(stmt.Name.Lexeme, function);
+    }
+
     public void VisitIfStmt(Stmt.If stmt)
     {
         if (IsTruthy(Evaluate(stmt.Condition)))
@@ -148,6 +187,17 @@ public class Interpreter
     {
         object? value = Evaluate(stmt.Expression);
         Console.WriteLine(Stringify(value));
+    }
+
+    public void VisitReturnStmt(Stmt.Return stmt)
+    {
+        object? value = null;
+        if (stmt.Value is not null)
+        {
+            value = Evaluate(stmt.Value);
+        }
+        
+        throw new Return(value);
     }
 
     public void VisitVarStmt(Stmt.Var stmt)
@@ -222,8 +272,8 @@ public class Interpreter
     {
         stmt.Accept(this);
     }
-    
-    private void ExecuteBlock(List<Stmt> statements, WispEnvironment environment)
+
+    internal void ExecuteBlock(List<Stmt> statements, WispEnvironment environment)
     {
         WispEnvironment previous = this._environment;
         try

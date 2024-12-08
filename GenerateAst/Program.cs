@@ -16,6 +16,7 @@ internal class Program
         DefineAst(outputDir, "Expr", [
             "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token op, Expr right",
+            "Call     : Expr callee, Token paren, List<Expr> arguments",
             "Grouping : Expr expression",
             "Literal  : object? value",
             "Logical  : Expr left, Token op, Expr right",
@@ -26,8 +27,10 @@ internal class Program
         DefineAst(outputDir, "Stmt", [
             "Block    : List<Stmt> statements",
             "ExprStmt : Expr expression",
+            "Function : Token name, List<Token> parameters, List<Stmt> body",
             "If       : Expr condition, Stmt thenBranch, Stmt? elseBranch",
             "Print    : Expr expression",
+            "Return   : Token keyword, Expr? value",
             "Var      : Token name, Expr? initializer",
             "While    : Expr condition, Stmt body"
         ]);
