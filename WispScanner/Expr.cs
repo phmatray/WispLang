@@ -2,7 +2,7 @@
 
 namespace WispScanner;
 
-public abstract class Expr
+public abstract record Expr
 {
     public interface IVisitor<out T>
     {
@@ -16,142 +16,69 @@ public abstract class Expr
         T VisitVariableExpr(Variable expr);
     }
 
-    public class Assign : Expr
+    public record Assign(Token Name, Expr Value) : Expr
     {
-        public Assign(Token name, Expr value)
-        {
-            Name = name;
-            Value = value;
-        }
-
-        public Token Name { get; }
-        public Expr Value { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitAssignExpr(this);
         }
     }
 
-    public class Binary : Expr
+    public record Binary(Expr Left, Token Op, Expr Right) : Expr
     {
-        public Binary(Expr left, Token op, Expr right)
-        {
-            Left = left;
-            Op = op;
-            Right = right;
-        }
-
-        public Expr Left { get; }
-        public Token Op { get; }
-        public Expr Right { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitBinaryExpr(this);
         }
     }
 
-    public class Call : Expr
+    public record Call(Expr Callee, Token Paren, List<Expr> Arguments) : Expr
     {
-        public Call(Expr callee, Token paren, List<Expr> arguments)
-        {
-            Callee = callee;
-            Paren = paren;
-            Arguments = arguments;
-        }
-
-        public Expr Callee { get; }
-        public Token Paren { get; }
-        public List<Expr> Arguments { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitCallExpr(this);
         }
     }
 
-    public class Grouping : Expr
+    public record Grouping(Expr Expression) : Expr
     {
-        public Grouping(Expr expression)
-        {
-            Expression = expression;
-        }
-
-        public Expr Expression { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitGroupingExpr(this);
         }
     }
 
-    public class Literal : Expr
+    public record Literal(object? Value) : Expr
     {
-        public Literal(object? value)
-        {
-            Value = value;
-        }
-
-        public object? Value { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitLiteralExpr(this);
         }
     }
 
-    public class Logical : Expr
+    public record Logical(Expr Left, Token Op, Expr Right) : Expr
     {
-        public Logical(Expr left, Token op, Expr right)
-        {
-            Left = left;
-            Op = op;
-            Right = right;
-        }
-
-        public Expr Left { get; }
-        public Token Op { get; }
-        public Expr Right { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitLogicalExpr(this);
         }
     }
 
-    public class Unary : Expr
+    public record Unary(Token Op, Expr Right) : Expr
     {
-        public Unary(Token op, Expr right)
-        {
-            Op = op;
-            Right = right;
-        }
-
-        public Token Op { get; }
-        public Expr Right { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitUnaryExpr(this);
         }
     }
 
-    public class Variable : Expr
+    public record Variable(Token Name) : Expr
     {
-        public Variable(Token name)
-        {
-            Name = name;
-        }
-
-        public Token Name { get; }
-
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitVariableExpr(this);
         }
     }
-
 
     public abstract T Accept<T>(IVisitor<T> visitor);
 }

@@ -2,7 +2,7 @@
 
 namespace WispScanner;
 
-public abstract class Stmt
+public abstract record Stmt
 {
     public interface IVisitorVoid
     {
@@ -16,140 +16,69 @@ public abstract class Stmt
         void VisitWhileStmt(While stmt);
     }
 
-    public class Block : Stmt
+    public record Block(List<Stmt> Statements) : Stmt
     {
-        public Block(List<Stmt> statements)
-        {
-            Statements = statements;
-        }
-
-        public List<Stmt> Statements { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitBlockStmt(this);
         }
     }
 
-    public class ExprStmt : Stmt
+    public record ExprStmt(Expr Expression) : Stmt
     {
-        public ExprStmt(Expr expression)
-        {
-            Expression = expression;
-        }
-
-        public Expr Expression { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitExprStmtStmt(this);
         }
     }
 
-    public class Function : Stmt
+    public record Function(Token Name, List<Token> Parameters, List<Stmt> Body) : Stmt
     {
-        public Function(Token name, List<Token> parameters, List<Stmt> body)
-        {
-            Name = name;
-            Parameters = parameters;
-            Body = body;
-        }
-
-        public Token Name { get; }
-        public List<Token> Parameters { get; }
-        public List<Stmt> Body { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitFunctionStmt(this);
         }
     }
 
-    public class If : Stmt
+    public record If(Expr Condition, Stmt ThenBranch, Stmt? ElseBranch) : Stmt
     {
-        public If(Expr condition, Stmt thenBranch, Stmt? elseBranch)
-        {
-            Condition = condition;
-            ThenBranch = thenBranch;
-            ElseBranch = elseBranch;
-        }
-
-        public Expr Condition { get; }
-        public Stmt ThenBranch { get; }
-        public Stmt? ElseBranch { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitIfStmt(this);
         }
     }
 
-    public class Print : Stmt
+    public record Print(Expr Expression) : Stmt
     {
-        public Print(Expr expression)
-        {
-            Expression = expression;
-        }
-
-        public Expr Expression { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitPrintStmt(this);
         }
     }
 
-    public class Return : Stmt
+    public record Return(Token Keyword, Expr? Value) : Stmt
     {
-        public Return(Token keyword, Expr? value)
-        {
-            Keyword = keyword;
-            Value = value;
-        }
-
-        public Token Keyword { get; }
-        public Expr? Value { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitReturnStmt(this);
         }
     }
 
-    public class Var : Stmt
+    public record Var(Token Name, Expr? Initializer) : Stmt
     {
-        public Var(Token name, Expr? initializer)
-        {
-            Name = name;
-            Initializer = initializer;
-        }
-
-        public Token Name { get; }
-        public Expr? Initializer { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitVarStmt(this);
         }
     }
 
-    public class While : Stmt
+    public record While(Expr Condition, Stmt Body) : Stmt
     {
-        public While(Expr condition, Stmt body)
-        {
-            Condition = condition;
-            Body = body;
-        }
-
-        public Expr Condition { get; }
-        public Stmt Body { get; }
-
         public override void Accept(IVisitorVoid visitor)
         {
             visitor.VisitWhileStmt(this);
         }
     }
-
 
     public abstract void Accept(IVisitorVoid visitor);
 }

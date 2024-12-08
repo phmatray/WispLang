@@ -1,6 +1,8 @@
 ﻿using System.Text;
 
-internal class Program
+namespace GenerateAst;
+
+internal static class Program
 {
     public static void Main(string[] args)
     {
@@ -14,25 +16,25 @@ internal class Program
 
         string outputDir = args[0];
         DefineAst(outputDir, "Expr", [
-            "Assign   : Token name, Expr value",
-            "Binary   : Expr left, Token op, Expr right",
-            "Call     : Expr callee, Token paren, List<Expr> arguments",
-            "Grouping : Expr expression",
-            "Literal  : object? value",
-            "Logical  : Expr left, Token op, Expr right",
-            "Unary    : Token op, Expr right",
-            "Variable : Token name"
+            "Assign   : Token Name, Expr Value",
+            "Binary   : Expr Left, Token Op, Expr Right",
+            "Call     : Expr Callee, Token Paren, List<Expr> Arguments",
+            "Grouping : Expr Expression",
+            "Literal  : object? Value",
+            "Logical  : Expr Left, Token Op, Expr Right",
+            "Unary    : Token Op, Expr Right",
+            "Variable : Token Name"
         ]);
         
         DefineAst(outputDir, "Stmt", [
-            "Block    : List<Stmt> statements",
-            "ExprStmt : Expr expression",
-            "Function : Token name, List<Token> parameters, List<Stmt> body",
-            "If       : Expr condition, Stmt thenBranch, Stmt? elseBranch",
-            "Print    : Expr expression",
-            "Return   : Token keyword, Expr? value",
-            "Var      : Token name, Expr? initializer",
-            "While    : Expr condition, Stmt body"
+            "Block    : List<Stmt> Statements",
+            "ExprStmt : Expr Expression",
+            "Function : Token Name, List<Token> Parameters, List<Stmt> Body",
+            "If       : Expr Condition, Stmt ThenBranch, Stmt? ElseBranch",
+            "Print    : Expr Expression",
+            "Return   : Token Keyword, Expr? Value",
+            "Var      : Token Name, Expr? Initializer",
+            "While    : Expr Condition, Stmt Body"
         ]);
     }
 
@@ -46,7 +48,7 @@ internal class Program
         
         writer.WriteLine("namespace WispScanner;");
         writer.WriteLine();
-        writer.WriteLine("public abstract class " + baseName);
+        writer.WriteLine("public abstract record " + baseName);
         writer.WriteLine("{");
         
         DefineVisitor(writer, baseName, types);
@@ -60,21 +62,14 @@ internal class Program
         }
         
         // The base accept() method.
-        switch (baseName)
+        string acceptSignature = baseName switch
         {
-            case "Expr":
-            {
-                writer.WriteLine();
-                writer.WriteLine("    public abstract T Accept<T>(IVisitor<T> visitor);");
-                break;
-            }
-            case "Stmt":
-            {
-                writer.WriteLine();
-                writer.WriteLine("    public abstract void Accept(IVisitorVoid visitor);");
-                break;
-            }
-        }
+            "Expr" => "T Accept<T>(IVisitor<T> visitor)",
+            "Stmt" => "void Accept(IVisitorVoid visitor)",
+            _ => throw new ArgumentOutOfRangeException(nameof(baseName), baseName, null)
+        };
+        
+        writer.WriteLine($"    public abstract {acceptSignature};");
         
         writer.WriteLine("}");
         writer.Close();
@@ -96,7 +91,6 @@ internal class Program
                 }
         
                 writer.WriteLine("    }");
-                writer.WriteLine();
                 break;
             }
             case "Stmt":
@@ -111,47 +105,23 @@ internal class Program
                 }
         
                 writer.WriteLine("    }");
-                writer.WriteLine();
                 break;
             }
         }
+        
+        writer.WriteLine();
     }
     
     private static void DefineType(StreamWriter writer, string baseName, string className, string fieldList)
     {
-        writer.WriteLine($"    public class {className} : {baseName}");
+        writer.WriteLine($"    public record {className}({fieldList}) : {baseName}");
         writer.WriteLine("    {");
-        
-        // Constructor.
-        writer.WriteLine($"        public {className}({fieldList})");
-        writer.WriteLine("        {");
-        
-        // Store parameters in fields.
-        string[] fields = fieldList.Split(", ");
-        foreach (string field in fields)
-        {
-            string name = field.Split(" ")[1];
-            writer.WriteLine($"            {name.First().ToString().ToUpper() + name[1..]} = {name};");
-        }
-        
-        writer.WriteLine("        }");
-        
-        // Fields.
-        writer.WriteLine();
-        foreach (string field in fields)
-        {
-            var type = field.Split(" ")[0];
-            var name = field.Split(" ")[1];
-            var property = name.First().ToString().ToUpper() + name[1..];
-            writer.WriteLine($"        public {type} {property} {{ get; }}");
-        }
         
         // Visitor pattern.
         switch (baseName)
         {
             case "Expr":
             {
-                writer.WriteLine();
                 writer.WriteLine("        public override T Accept<T>(IVisitor<T> visitor)");
                 writer.WriteLine("        {");
                 writer.WriteLine($"            return visitor.Visit{className}{baseName}(this);");
@@ -160,7 +130,6 @@ internal class Program
             }
             case "Stmt":
             {
-                writer.WriteLine();
                 writer.WriteLine("        public override void Accept(IVisitorVoid visitor)");
                 writer.WriteLine("        {");
                 writer.WriteLine($"            visitor.Visit{className}{baseName}(this);");
