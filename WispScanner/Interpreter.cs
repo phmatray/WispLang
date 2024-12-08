@@ -5,14 +5,13 @@ namespace WispScanner;
 public class Interpreter
     : Expr.IVisitor<object?>, Stmt.IVisitorVoid
 {
-    public WispEnvironment Globals { get; } = new();
-    
+    private readonly WispEnvironment _globals = new();
     private WispEnvironment _environment;
 
     public Interpreter()
     {
-        _environment = Globals;
-        Globals.Define("clock", new ClockCallable());
+        _environment = _globals;
+        _globals.Define("clock", new ClockCallable());
     }
     
     public void Interpret(List<Stmt> statements)
@@ -167,7 +166,7 @@ public class Interpreter
 
     public void VisitFunctionStmt(Stmt.Function stmt)
     {
-        WispFunction function = new(stmt);
+        WispFunction function = new(stmt, _environment);
         _environment.Define(stmt.Name.Lexeme, function);
     }
 
@@ -275,7 +274,7 @@ public class Interpreter
 
     internal void ExecuteBlock(List<Stmt> statements, WispEnvironment environment)
     {
-        WispEnvironment previous = this._environment;
+        WispEnvironment previous = _environment;
         try
         {
             _environment = environment;
