@@ -4,8 +4,8 @@ using WispScanner;
 internal class Program
 {
     private static readonly Interpreter interpreter = new();
-    static bool hadError = false;
-    static bool hadRuntimeError = false;
+    private static bool hadError = false;
+    private static bool hadRuntimeError = false;
 
     public static void Main(string[] args)
     {
@@ -49,17 +49,6 @@ internal class Program
             Run(line);
         }
     }
-
-    // static void Run(string source)
-    // {
-    //     Scanner scanner = new(source);
-    //     List<Token> tokens = scanner.ScanTokens();
-    //
-    //     foreach (Token token in tokens)
-    //     {
-    //         Console.WriteLine(token);
-    //     }
-    // }
     
     static void Run(string source)
     {
@@ -69,6 +58,12 @@ internal class Program
         List<Stmt> statements = parser.Parse();
         
         // Stop if there was a syntax error.
+        if (hadError) return;
+        
+        Resolver resolver = new(interpreter);
+        resolver.Resolve(statements);
+        
+        // Stop if there was a resolution error.
         if (hadError) return;
     
         interpreter.Interpret(statements);

@@ -20,6 +20,27 @@ public class WispEnvironment
         _values[name] = value;
     }
     
+    private WispEnvironment Ancestor(int distance)
+    {
+        WispEnvironment environment = this;
+        for (int i = 0; i < distance; i++)
+        {
+            environment = environment._enclosing!;
+        }
+        
+        return environment;
+    }
+    
+    public object? GetAt(int distance, string name)
+    {
+        return Ancestor(distance)._values[name];
+    }
+
+    public void AssignAt(int distance, Token name, object? value)
+    {
+        Ancestor(distance)._values[name.Lexeme] = value;
+    }
+    
     public object? Get(Token name)
     {
         if (_values.TryGetValue(name.Lexeme, out object? value))

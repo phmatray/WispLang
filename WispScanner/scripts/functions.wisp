@@ -1,19 +1,3 @@
-print clock();
-
-fun makeCounter() {
-  var i = 0;
-  fun count() {
-    i = i + 1;
-    print i;
-  }
-
-  return count;
-}
-
-var counter = makeCounter();
-counter(); // "1".
-counter(); // "2".
-
 fun count(n) {
   if (n > 1) count(n - 1);
   print n;
@@ -36,6 +20,20 @@ fun sayHi(first, last) {
 print sayHi;
 sayHi("Dear", "Reader");
 
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+
+  showA();
+  var a = "block";
+  showA();
+}
+
+print clock;
+print clock();
+
 fun fib(n) {
   if (n <= 1) return n;
   return fib(n - 2) + fib(n - 1);
@@ -45,3 +43,4 @@ print fib;
 for (var i = 0; i < 20; i = i + 1) {
   print fib(i);
 }
+

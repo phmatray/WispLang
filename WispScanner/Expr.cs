@@ -16,11 +16,28 @@ public abstract record Expr
         T VisitVariableExpr(Variable expr);
     }
 
+    public interface IVisitorVoid
+    {
+        void VisitAssignExpr(Assign expr);
+        void VisitBinaryExpr(Binary expr);
+        void VisitCallExpr(Call expr);
+        void VisitGroupingExpr(Grouping expr);
+        void VisitLiteralExpr(Literal expr);
+        void VisitLogicalExpr(Logical expr);
+        void VisitUnaryExpr(Unary expr);
+        void VisitVariableExpr(Variable expr);
+    }
+
     public sealed record Assign(Token Name, Expr Value) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitAssignExpr(this);
+        }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitAssignExpr(this);
         }
     }
 
@@ -30,6 +47,11 @@ public abstract record Expr
         {
             return visitor.VisitBinaryExpr(this);
         }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitBinaryExpr(this);
+        }
     }
 
     public sealed record Call(Expr Callee, Token Paren, List<Expr> Arguments) : Expr
@@ -37,6 +59,11 @@ public abstract record Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitCallExpr(this);
+        }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitCallExpr(this);
         }
     }
 
@@ -46,6 +73,11 @@ public abstract record Expr
         {
             return visitor.VisitGroupingExpr(this);
         }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitGroupingExpr(this);
+        }
     }
 
     public sealed record Literal(object? Value) : Expr
@@ -53,6 +85,11 @@ public abstract record Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitLiteralExpr(this);
+        }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitLiteralExpr(this);
         }
     }
 
@@ -62,6 +99,11 @@ public abstract record Expr
         {
             return visitor.VisitLogicalExpr(this);
         }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitLogicalExpr(this);
+        }
     }
 
     public sealed record Unary(Token Op, Expr Right) : Expr
@@ -69,6 +111,11 @@ public abstract record Expr
         public override T Accept<T>(IVisitor<T> visitor)
         {
             return visitor.VisitUnaryExpr(this);
+        }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitUnaryExpr(this);
         }
     }
 
@@ -78,7 +125,14 @@ public abstract record Expr
         {
             return visitor.VisitVariableExpr(this);
         }
+
+        public override void Accept(IVisitorVoid visitor)
+        {
+            visitor.VisitVariableExpr(this);
+        }
     }
 
     public abstract T Accept<T>(IVisitor<T> visitor);
+
+    public abstract void Accept(IVisitorVoid visitor);
 }

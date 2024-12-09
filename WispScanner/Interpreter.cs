@@ -6,6 +6,7 @@ public class Interpreter
     : Expr.IVisitor<object?>, Stmt.IVisitorVoid
 {
     private readonly WispEnvironment _globals = new();
+    private readonly Dictionary<Expr, int> _locals = new();
     private WispEnvironment _environment;
 
     public Interpreter()
@@ -32,7 +33,17 @@ public class Interpreter
     public object? VisitAssignExpr(Expr.Assign expr)
     {
         object? value = Evaluate(expr.Value);
-        _environment.Assign(expr.Name, value);
+        
+        int distance = _locals.GetValueOrDefault(expr, -1);
+        if (distance != -1)
+        {
+            _environment.AssignAt(distance, expr.Name, value);
+        }
+        else
+        {
+            _globals.Assign(expr.Name, value);
+        }
+
         return value;
     }
 
@@ -151,7 +162,21 @@ public class Interpreter
 
     public object? VisitVariableExpr(Expr.Variable expr)
     {
-        return _environment.Get(expr.Name);
+        return LookUpVariable(expr.Name, expr);
+    }
+
+    private object? LookUpVariable(Token exprName, Expr expr)
+    {
+        int distance = _locals.GetValueOrDefault(expr, -1);
+
+        if (distance != -1)
+        {
+            return _environment.GetAt(distance, exprName.Lexeme);
+        }
+        else
+        {
+            return _globals.Get(exprName);
+        }
     }
 
     public void VisitBlockStmt(Stmt.Block stmt)
@@ -288,5 +313,10 @@ public class Interpreter
         {
             _environment = previous;
         }
+    }
+    
+    internal void Resolve(Expr expr, int depth)
+    {
+        _locals[expr] = depth;
     }
 }
