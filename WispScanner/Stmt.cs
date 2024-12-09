@@ -16,7 +16,7 @@ public abstract record Stmt
         void VisitWhileStmt(While stmt);
     }
 
-    public record Block(List<Stmt> Statements) : Stmt
+    public sealed record Block(List<Stmt> Statements) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -24,7 +24,7 @@ public abstract record Stmt
         }
     }
 
-    public record ExprStmt(Expr Expression) : Stmt
+    public sealed record ExprStmt(Expr Expression) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -32,7 +32,7 @@ public abstract record Stmt
         }
     }
 
-    public record Function(Token Name, List<Token> Parameters, List<Stmt> Body) : Stmt
+    public sealed record Function(Token Name, List<Token> Parameters, List<Stmt> Body) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -40,7 +40,7 @@ public abstract record Stmt
         }
     }
 
-    public record If(Expr Condition, Stmt ThenBranch, Stmt? ElseBranch) : Stmt
+    public sealed record If(Expr Condition, Stmt ThenBranch, Stmt? ElseBranch) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -48,7 +48,7 @@ public abstract record Stmt
         }
     }
 
-    public record Print(Expr Expression) : Stmt
+    public sealed record Print(Expr Expression) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -56,7 +56,7 @@ public abstract record Stmt
         }
     }
 
-    public record Return(Token Keyword, Expr? Value) : Stmt
+    public sealed record Return(Token Keyword, Expr? Value) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -64,7 +64,7 @@ public abstract record Stmt
         }
     }
 
-    public record Var(Token Name, Expr? Initializer) : Stmt
+    public sealed record Var(Token Name, Expr? Initializer) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {
@@ -72,7 +72,7 @@ public abstract record Stmt
         }
     }
 
-    public record While(Expr Condition, Stmt Body) : Stmt
+    public sealed record While(Expr Condition, Stmt Body) : Stmt
     {
         public override void Accept(IVisitorVoid visitor)
         {

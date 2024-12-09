@@ -114,7 +114,7 @@ internal static class Program
     
     private static void DefineType(StreamWriter writer, string baseName, string className, string fieldList)
     {
-        writer.WriteLine($"    public record {className}({fieldList}) : {baseName}");
+        writer.WriteLine($"    public sealed record {className}({fieldList}) : {baseName}");
         writer.WriteLine("    {");
         
         // Visitor pattern.

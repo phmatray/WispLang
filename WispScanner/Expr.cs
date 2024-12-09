@@ -16,7 +16,7 @@ public abstract record Expr
         T VisitVariableExpr(Variable expr);
     }
 
-    public record Assign(Token Name, Expr Value) : Expr
+    public sealed record Assign(Token Name, Expr Value) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -24,7 +24,7 @@ public abstract record Expr
         }
     }
 
-    public record Binary(Expr Left, Token Op, Expr Right) : Expr
+    public sealed record Binary(Expr Left, Token Op, Expr Right) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -32,7 +32,7 @@ public abstract record Expr
         }
     }
 
-    public record Call(Expr Callee, Token Paren, List<Expr> Arguments) : Expr
+    public sealed record Call(Expr Callee, Token Paren, List<Expr> Arguments) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -40,7 +40,7 @@ public abstract record Expr
         }
     }
 
-    public record Grouping(Expr Expression) : Expr
+    public sealed record Grouping(Expr Expression) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -48,7 +48,7 @@ public abstract record Expr
         }
     }
 
-    public record Literal(object? Value) : Expr
+    public sealed record Literal(object? Value) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -56,7 +56,7 @@ public abstract record Expr
         }
     }
 
-    public record Logical(Expr Left, Token Op, Expr Right) : Expr
+    public sealed record Logical(Expr Left, Token Op, Expr Right) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -64,7 +64,7 @@ public abstract record Expr
         }
     }
 
-    public record Unary(Token Op, Expr Right) : Expr
+    public sealed record Unary(Token Op, Expr Right) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
@@ -72,7 +72,7 @@ public abstract record Expr
         }
     }
 
-    public record Variable(Token Name) : Expr
+    public sealed record Variable(Token Name) : Expr
     {
         public override T Accept<T>(IVisitor<T> visitor)
         {
