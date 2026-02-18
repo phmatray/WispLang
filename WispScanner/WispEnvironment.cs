@@ -17,7 +17,7 @@ public class WispEnvironment
     
     public void Define(string name, object? value)
     {
-        _values[name] = value;
+        _values.Add(name, value);
     }
     
     private WispEnvironment Ancestor(int distance)
@@ -38,7 +38,7 @@ public class WispEnvironment
 
     public void AssignAt(int distance, Token name, object? value)
     {
-        Ancestor(distance)._values[name.Lexeme] = value;
+        Ancestor(distance)._values.Add(name.Lexeme, value);
     }
     
     public object? Get(Token name)
@@ -48,7 +48,10 @@ public class WispEnvironment
             return value;
         }
         
-        if (_enclosing is not null) return _enclosing.Get(name);
+        if (_enclosing != null)
+        {
+            return _enclosing.Get(name);
+        }
         
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
     }
@@ -61,7 +64,7 @@ public class WispEnvironment
             return;
         }
         
-        if (_enclosing is not null)
+        if (_enclosing != null)
         {
             _enclosing.Assign(name, value);
             return;

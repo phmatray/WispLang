@@ -201,7 +201,7 @@ public class Interpreter
         {
             Execute(stmt.ThenBranch);
         }
-        else if (stmt.ElseBranch is not null)
+        else if (stmt.ElseBranch != null)
         {
             Execute(stmt.ElseBranch);
         }
@@ -216,7 +216,7 @@ public class Interpreter
     public void VisitReturnStmt(Stmt.Return stmt)
     {
         object? value = null;
-        if (stmt.Value is not null)
+        if (stmt.Value != null)
         {
             value = Evaluate(stmt.Value);
         }
@@ -227,7 +227,7 @@ public class Interpreter
     public void VisitVarStmt(Stmt.Var stmt)
     {
         object? value = null;
-        if (stmt.Initializer is not null)
+        if (stmt.Initializer != null)
         {
             value = Evaluate(stmt.Initializer);
         }

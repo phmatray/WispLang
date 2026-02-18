@@ -1,16 +1,11 @@
 namespace WispScanner;
 
-public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
+public class Resolver(Interpreter interpreter)
+    : Expr.IVisitorVoid, Stmt.IVisitorVoid
 {
-    private readonly Interpreter _interpreter;
-    private readonly Stack<Dictionary<string, bool>> _scopes = new();
+    private readonly Stack<Dictionary<string, bool>> _scopes = [];
     private FunctionType _currentFunction = FunctionType.NONE;
 
-    public Resolver(Interpreter interpreter)
-    {
-        _interpreter = interpreter;
-    }
-    
     internal void Resolve(List<Stmt> statements)
     {
         foreach (Stmt statement in statements)
@@ -18,38 +13,40 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
             Resolve(statement);
         }
     }
-    
+
     internal void Resolve(Stmt statement)
     {
         statement.Accept(this);
     }
-    
+
     internal void Resolve(Expr expression)
     {
         expression.Accept(this);
     }
-    
+
     private void ResolveFunction(Stmt.Function function, FunctionType type)
     {
         FunctionType enclosingFunction = _currentFunction;
         _currentFunction = type;
-        
+
         BeginScope();
         foreach (Token param in function.Parameters)
         {
             Declare(param);
             Define(param);
         }
+
         Resolve(function.Body);
         EndScope();
+
         _currentFunction = enclosingFunction;
     }
-    
+
     private void BeginScope()
     {
         _scopes.Push(new Dictionary<string, bool>());
     }
-    
+
     private void EndScope()
     {
         _scopes.Pop();
@@ -65,7 +62,7 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
         Dictionary<string, bool> scope = _scopes.Peek();
         if (!scope.TryAdd(name.Lexeme, false))
         {
-            throw new RuntimeError(name, $"Variable with name '{name.Lexeme}' already declared in this scope.");
+            Program.Error(name, $"Variable with name '{name.Lexeme}' already declared in this scope.");
         }
     }
 
@@ -75,8 +72,15 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
         {
             return;
         }
-
-        _scopes.Peek()[name.Lexeme] = true;
+        
+        if (_scopes.Peek().ContainsKey(name.Lexeme))
+        {
+            _scopes.Peek()[name.Lexeme] = true;
+        }
+        else
+        {
+            Program.Error(name, "Variable has not been declared.");
+        }
     }
 
     private void ResolveLocal(Expr expr, Token name)
@@ -85,7 +89,7 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
         {
             if (_scopes.ElementAt(i).ContainsKey(name.Lexeme))
             {
-                _interpreter.Resolve(expr, _scopes.Count - 1 - i);
+                interpreter.Resolve(expr, _scopes.Count - 1 - i);
                 return;
             }
         }
@@ -139,7 +143,7 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
         {
             throw new RuntimeError(expr.Name, "Cannot read local variable in its own initializer.");
         }
-        
+
         ResolveLocal(expr, expr.Name);
     }
 
@@ -159,7 +163,7 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
     {
         Declare(stmt.Name);
         Define(stmt.Name);
-        
+
         ResolveFunction(stmt, FunctionType.FUNCTION);
     }
 
@@ -184,7 +188,7 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
         {
             throw new RuntimeError(stmt.Keyword, "Cannot return from top-level code.");
         }
-        
+
         if (stmt.Value != null)
         {
             Resolve(stmt.Value);
@@ -198,6 +202,7 @@ public class Resolver : Expr.IVisitorVoid, Stmt.IVisitorVoid
         {
             Resolve(stmt.Initializer);
         }
+
         Define(stmt.Name);
     }
 
