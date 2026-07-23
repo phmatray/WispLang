@@ -34,6 +34,14 @@ cd WispLang
 dotnet run --project WispScanner
 ```
 
+<!-- portfolio-techstack:start -->
+
+## Tech Stack
+
+- **.NET 10**
+
+<!-- portfolio-techstack:end -->
+
 ## License
 MIT
 
