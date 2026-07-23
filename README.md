@@ -1,3 +1,5 @@
+![WispLang banner](.github/banner.png)
+
 # WispLang
 
 > A tree-walk interpreter for the Wisp programming language, implemented in C#.
