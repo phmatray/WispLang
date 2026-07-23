@@ -2,6 +2,20 @@
 
 # WispLang
 
+<!-- portfolio-badges:start -->
+<!-- Identity -->
+[![phmatray - WispLang](https://img.shields.io/static/v1?label=phmatray&message=WispLang&color=blue&logo=github)](https://github.com/phmatray/WispLang)
+![Top language](https://img.shields.io/github/languages/top/phmatray/WispLang)
+[![Stars](https://img.shields.io/github/stars/phmatray/WispLang?style=social)](https://github.com/phmatray/WispLang/stargazers)
+[![Forks](https://img.shields.io/github/forks/phmatray/WispLang?style=social)](https://github.com/phmatray/WispLang/network/members)
+
+<!-- Activity -->
+[![Issues](https://img.shields.io/github/issues/phmatray/WispLang)](https://github.com/phmatray/WispLang/issues)
+[![Pull requests](https://img.shields.io/github/issues-pr/phmatray/WispLang)](https://github.com/phmatray/WispLang/pulls)
+[![Last commit](https://img.shields.io/github/last-commit/phmatray/WispLang)](https://github.com/phmatray/WispLang/commits)
+<!-- portfolio-badges:end -->
+
+
 > A tree-walk interpreter for the Wisp programming language, implemented in C#.
 
 ## Description
