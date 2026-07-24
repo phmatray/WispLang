@@ -8,6 +8,7 @@
 ![Top language](https://img.shields.io/github/languages/top/phmatray/WispLang)
 [![Stars](https://img.shields.io/github/stars/phmatray/WispLang?style=social)](https://github.com/phmatray/WispLang/stargazers)
 [![Forks](https://img.shields.io/github/forks/phmatray/WispLang?style=social)](https://github.com/phmatray/WispLang/network/members)
+[![License](https://img.shields.io/github/license/phmatray/WispLang)](https://github.com/phmatray/WispLang/blob/HEAD/LICENSE)
 
 <!-- Activity -->
 [![Issues](https://img.shields.io/github/issues/phmatray/WispLang)](https://github.com/phmatray/WispLang/issues)
